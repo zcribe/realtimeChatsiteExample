@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chatroom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                Helvetica, Arial, sans-serif;
+        }
+
+        .body-bg {
+            background: hsla(265, 53%, 29%, 1);
+
+            background: linear-gradient(90deg, hsla(265, 53%, 29%, 1) 0%, hsla(24, 93%, 73%, 1) 100%);
+
+            background: -moz-linear-gradient(90deg, hsla(265, 53%, 29%, 1) 0%, hsla(24, 93%, 73%, 1) 100%);
+
+            background: -webkit-linear-gradient(90deg, hsla(265, 53%, 29%, 1) 0%, hsla(24, 93%, 73%, 1) 100%);
+
+            filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#432371", endColorstr="#FAAE7B", GradientType=1);
+        }
+
+        #form {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 0.25rem;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            position: fixed;
+            height: 3rem;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+        }
+
+        #input {
+            border: none;
+            padding: 0 1rem;
+            flex-grow: 1;
+            border-radius: 2rem;
+            margin: 0.25rem;
+        }
+
+        #input:focus {
+            outline: none;
+        }
+
+        #form>button {
+            background: #333;
+            border: none;
+            padding: 0 1rem;
+            margin: 0.25rem;
+            border-radius: 3px;
+            outline: none;
+            color: #fff;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages>li {
+            padding: 0.5rem 1rem;
+        }
+
+        #messages>li:nth-child(odd) {
+            background: #efefef;
+        }
+
+        #container {
+            display: flex;
+            width: auto;
+            height: auto;
+        }
+
+        #column-info {
+            flex: 10%
+        }
+
+        #column-messages {
+            flex: 90%
+        }
+    </style>
+</head>
+
+<body class="body-bg min-h-screen pt-12 md:pt-20 pb-6 px-2 md:px-0" style="font-family:'Lato',sans-serif;">
+    <header class="max-w-lg mx-auto">
+        <a href="#">
+            <h1 class="text-4xl font-bold text-white text-center">Chattyman...</h1>
+        </a>
+    </header>
+
+    <main id="login-panel" class="bg-white max-w-lg mx-auto p-8 md:p-12 my-10 rounded-lg shadow-2xl">
+        <section>
+            <h3 class="font-bold text-2xl">Welcome to Chattyman</h3>
+            <p class="text-gray-600 pt-2">Sign in to your account.</p>
+        </section>
+
+        <section class="mt-10">
+            <form class="flex flex-col" id="login-form">
+                <div class="mb-6 pt-3 rounded bg-gray-200">
+                    <label class="block text-gray-700 text-sm font-bold mb-2 ml-3" for="username">Username</label>
+                    <input type="text" id="username" name="username" value="john"
+                        class="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3">
+                </div>
+                <div class="mb-6 pt-3 rounded bg-gray-200">
+                    <label class="block text-gray-700 text-sm font-bold mb-2 ml-3" for="password">Password</label>
+                    <input type="password" id="password" name="password" value="changeit"
+                        class="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3">
+                </div>
+                <button
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"
+                    type="submit">Sign In</button>
+            </form>
+        </section>
+    </main>
+
+    <main id="home-panel" class="bg-white max-w-lg mx-auto p-8 md:p-12 my-10 rounded-lg shadow-2xl">
+        <section>
+            <h3 class="font-bold text-2xl">Get to chatting...</h3>
+        </section>
+
+        <section class="mt-10">
+            <p class="block text-gray-700 text-sm font-bold mb-2 ml-3">Authenticated!</p>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>Status</td>
+                            <td><span id="status">Disconnected</span></td>
+                        </tr>
+                        <tr>
+                            <td>Socket ID</td>
+                            <td><span id="socket-id"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td><span id="name"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <ul id="messages"></ul>
+                <form id="form" action="">
+                    <input id="input" autocomplete="off" /><button>Send</button>
+                </form>
+                <form id="logout-form">
+                    <button
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"
+                    type="submit" value="Log out">Log out</button>
+                </form>
+        </section>
+    </main>
+
+    <div class="max-w-lg mx-auto text-center mt-12 mb-6">
+        <p class="text-white">Don't have an account? <a href="#" class="font-bold hover:underline">Sign up</a>.</p>
+    </div>
+
+
+    <div style="display: none">
+        <p>Not authenticated</p>
+        <form id="login-form">
+            <div>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" value="john" />
+                <br />
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" value="changeit" />
+            </div>
+            <div>
+                <input type="submit" value="Submit" />
+            </div>
+        </form>
+    </div>
+
+    <div  style="display: none">
+        <div id="container">
+            <div id="column-info">
+                
+            </div>
+
+            <div id="column-messages">
+                <ul id="messages"></ul>
+                <form id="form" action="">
+                    <input id="input" autocomplete="off" /><button>Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const loginPanel = document.getElementById("login-panel");
+        const homePanel = document.getElementById("home-panel");
+        const loginForm = document.getElementById("login-form");
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
+        const statusSpan = document.getElementById("status");
+        const socketIdSpan = document.getElementById("socket-id");
+        const usernameSpan = document.getElementById("name");
+        const logoutForm = document.getElementById("logout-form");
+
+        let socket;
+
+        async function main() {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                return showLoginPanel();
+            }
+
+            const res = await fetch("/self", {
+                headers: {
+                    authorization: `bearer ${token}`,
+                },
+            });
+
+            if (res.status === 200) {
+                showHomePanel();
+            } else {
+                showLoginPanel();
+            }
+        }
+
+        function showHomePanel() {
+            loginPanel.style.display = "none";
+            homePanel.style.display = "block";
+
+            // this will only work if HTTP long-polling is enabled, since WebSockets do not support providing additional headers
+            socket = io({
+                extraHeaders: {
+                    authorization: `bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            socket.on("connect", () => {
+                statusSpan.innerText = "connected";
+                socketIdSpan.innerText = socket.id;
+
+                socket.emit("whoami", (username) => {
+                    usernameSpan.innerText = username;
+                });
+            });
+
+            socket.on("disconnect", () => {
+                statusSpan.innerText = "disconnected";
+                socketIdSpan.innerText = "-";
+            });
+        }
+
+        function showLoginPanel() {
+            loginPanel.style.display = "block";
+            homePanel.style.display = "none";
+        }
+
+        loginForm.onsubmit = async function (e) {
+            e.preventDefault();
+
+            const res = await fetch("/login", {
+                method: "post",
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: usernameInput.value,
+                    password: passwordInput.value,
+                }),
+            });
+
+            if (res.status === 200) {
+                const { token } = await res.json();
+                localStorage.setItem("token", token);
+                // window.location.href='/chatroom'
+                showHomePanel();
+            } else {
+                passwordInput.value = "";
+            }
+        };
+
+        logoutForm.onsubmit = function (e) {
+            e.preventDefault();
+
+            socket.disconnect();
+            localStorage.removeItem("token");
+
+            showLoginPanel();
+        };
+
+        main();
+    </script>
+</body>
+
+</html>
