@@ -118,8 +118,8 @@
       class="container mx-auto grid grid-flow-row-dense grid-cols-3"
     >
       <section class="mt-10 grid grid-cols-4 gap-10">
-        <div class="bg-white p-8 md:p-12 my-10 rounded-lg shadow-2xl">
-          <p class="block text-gray-700 text-sm font-bold mb-2 ml-3">
+        <div class="bg-white p-8 md:p-7 my-10 rounded-lg shadow-2x relative">
+          <!-- <p class="block text-gray-700 text-sm font-bold mb-2 ml-3">
             Authenticated!
           </p>
           <table>
@@ -137,10 +137,16 @@
                 <td><span id="name"></span></td>
               </tr>
             </tbody>
-          </table>
-          <form id="logout-form">
+          </table> -->
+          <p
+            class="block text-gray-700 text-sm font-bold mb-2 ml-3 flex-none left-5 absolute"
+          >
+            Members:
+          </p>
+          <ul id="members" class="overflow-y-auto mt-7 bg-gray-100 rounded px-5 min-h-96 max-h-96 "></ul>
+          <form id="logout-form" class="absolute bottom-5 left-5">
             <button
-              class="px-3 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"
+              class="px-3 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"
               type="submit"
               value="Log out"
             >
@@ -151,10 +157,20 @@
         <div
           class="bg-white p-8 md:p-12 my-10 rounded-lg shadow-2xl col-span-3 flex flex-col"
         >
-          <p class="block text-gray-700 text-sm font-bold mb-2 ml-3 flex-none">
+          <h2 class="block text-gray-700 font-bold mb-2 ml-3 flex-none">
             Chatroom
-          </p>
-          <ul id="messages" class="grow h-full bg-slate-100 my-3 min-h-96 p-5"></ul>
+          </h2>
+          <ul
+            id="messages"
+            class="bg-slate-100 my-3 min-h-96 max-h-96 p-5 overflow-y-auto rounded relative"
+          >
+            <p
+              id="typing"
+              class="absolute bottom-2 left-2 text-gray-400 text-sm"
+            >
+              is typing...
+            </p>
+          </ul>
           <div class="p-1 flex-none">
             <form id="form" action="" class="flex">
               <input
@@ -163,7 +179,7 @@
                 class="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 p-3"
               />
               <button
-                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200 px-3"
+                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200 px-3 ml-1"
               >
                 Send
               </button>
@@ -203,19 +219,6 @@
       </form>
     </div>
 
-    <div style="display: none">
-      <div id="container">
-        <div id="column-info"></div>
-
-        <div id="column-messages">
-          <ul id="messages"></ul>
-          <form id="form" action="">
-            <input id="input" autocomplete="off" /><button>Send</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const loginPanel = document.getElementById("login-panel");
@@ -230,6 +233,8 @@
       const form = document.getElementById("form");
       const input = document.getElementById("input");
       const messages = document.getElementById("messages");
+      const typing = document.getElementById("typing");
+      const members = document.getElementById("members");
 
       let socket;
 
@@ -282,6 +287,17 @@
           const item = document.createElement("li");
           item.textContent = msg;
           messages.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socket.on("members", (list) => {
+            console.log(list)
+          list.forEach((element) => {
+            const item = document.createElement("li");
+            item.textContent = element;
+            members.appendChild(item);
+          });
+
           window.scrollTo(0, document.body.scrollHeight);
         });
       }

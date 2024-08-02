@@ -5,10 +5,6 @@ import User from "../models/user";
 
 const userRouter = Router();
 
-userRouter.get("/", async (request: Request, response: Response) => {
-  response.send("Hello World!");
-});
-
 userRouter.post("/", async (request: Request, response: Response) => {
   const { username, password } = request.body;
 

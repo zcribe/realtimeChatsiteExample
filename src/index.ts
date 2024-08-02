@@ -82,6 +82,9 @@ passport.use(
 
 const io = new Server(server);
 
+let numUsers = 0;
+let usersInRoom: string[] = [];
+
 io.engine.use(
   (req: { _query: Record<string, string> }, res: Response, next: Function) => {
     const isHandshake = req._query.sid === undefined;
@@ -95,8 +98,15 @@ io.engine.use(
 
 io.on("connection", (socket) => {
   const req = socket.request as Request & { user: Express.User };
+  let addedUser = false;
 
   socket.join(`user:${req.user.id}`);
+
+  if (!addedUser){
+    usersInRoom.push(req.user.username)
+    io.emit('members', usersInRoom);
+    addedUser = true
+  }
 
   socket.on("whoami", (cb) => {
     cb(req.user.username);
@@ -117,6 +127,21 @@ io.on("connection", (socket) => {
     socket.broadcast.emit('stop typing', {
       username: req.user.username
     });
+  });
+
+  socket.on('disconnect', () => {
+    if (addedUser) {
+      --numUsers;
+      const index: number = usersInRoom.indexOf(req.user.username)
+      usersInRoom = usersInRoom.splice(index, 1)
+      
+
+      // echo globally that this client has left
+      socket.broadcast.emit('user left', {
+        username: req.user.username,
+        numUsers: numUsers
+      });
+    }
   });
 
   
