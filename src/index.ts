@@ -27,9 +27,7 @@ const server = createServer(app);
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (request: Request, response: Response) => {
-  response.sendFile(join(__dirname, "public/index.html"));
-});
+app.use(express.static(join(__dirname, 'public')));
 
 
 app.get(
@@ -102,11 +100,12 @@ io.on("connection", (socket) => {
 
   socket.join(`user:${req.user.id}`);
 
-  if (!addedUser){
+  if (!addedUser && !usersInRoom.includes(req.user.username)){
     usersInRoom.push(req.user.username)
-    io.emit('members', usersInRoom);
     addedUser = true
   }
+
+  io.emit('members', usersInRoom);
 
   socket.on("whoami", (cb) => {
     cb(req.user.username);
@@ -132,9 +131,7 @@ io.on("connection", (socket) => {
   socket.on('disconnect', () => {
     if (addedUser) {
       --numUsers;
-      const index: number = usersInRoom.indexOf(req.user.username)
-      usersInRoom = usersInRoom.splice(index, 1)
-      
+      usersInRoom = usersInRoom.filter( i => i !== req.user.username)
 
       // echo globally that this client has left
       socket.broadcast.emit('user left', {

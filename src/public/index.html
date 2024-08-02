@@ -47,6 +47,40 @@
 
         filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#432371", endColorstr="#FAAE7B", GradientType=1);
       }
+
+       /* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+} 
     </style>
   </head>
 
@@ -63,6 +97,7 @@
         </h1>
       </a>
     </header>
+   
 
     <main
       id="login-panel"
@@ -124,7 +159,10 @@
           >
             Members:
           </p>
-          <ul id="members" class="overflow-y-auto mt-7 bg-gray-100 rounded px-5 min-h-96 max-h-96 "></ul>
+          <ul
+            id="members"
+            class="overflow-y-auto mt-7 bg-gray-100 rounded px-5 min-h-96 max-h-96"
+          ></ul>
           <form id="logout-form" class="absolute bottom-5 left-5">
             <button
               class="px-3 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"
@@ -173,7 +211,65 @@
     <div class="max-w-lg mx-auto text-center mt-12 mb-6">
       <p class="text-white">
         Don't have an account?
-        <a href="#" class="font-bold hover:underline">Sign up</a>.
+        <a href="#" class="font-bold hover:underline" id="myBtn">Sign up</a>.
+        <div id="myModal" class="modal">
+
+          <!-- Modal content -->
+          <div class="modal-content">
+            
+            <main
+      id="login-panel"
+      class="bg-white max-w-lg mx-auto p-8 md:p-12 my-10 rounded-lg shadow-2xl"
+    >
+      <section>
+        <span class="close">&times;</span>
+        <h3 class="font-bold text-2xl">Welcome to Chattyman</h3>
+        <p class="text-gray-600 pt-2">Create a new account.</p>
+      </section>
+
+      <section class="mt-10">
+        <form class="flex flex-col" id="login-form">
+          <div class="mb-6 pt-3 rounded bg-gray-200">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2 ml-3"
+              for="username"
+              >Username</label
+            >
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value="john"
+              class="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3"
+            />
+          </div>
+          <div class="mb-6 pt-3 rounded bg-gray-200">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2 ml-3"
+              for="password"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value="changeit"
+              class="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3"
+            />
+          </div>
+          <button
+            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"
+            type="submit"
+          >
+            Register
+          </button>
+        </form>
+      </section>
+    </main>
+
+          </div>
+        
+        </div>
       </p>
     </div>
 
@@ -249,12 +345,10 @@
         });
 
         socket.on("connect", () => {
-          socket.emit("whoami", (username) => {
-          });
+          socket.emit("whoami", (username) => {});
         });
 
-        socket.on("disconnect", () => {
-        });
+        socket.on("disconnect", () => {});
 
         socket.on("chat message", (msg) => {
           const item = document.createElement("li");
@@ -271,7 +365,7 @@
         });
 
         socket.on("members", (list) => {
-            console.log(list)
+          console.log(list);
           list.forEach((element) => {
             const item = document.createElement("li");
             item.textContent = element;
@@ -327,6 +421,32 @@
           input.value = "";
         }
       });
+
+      // Get the modal
+var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on the button, open the modal
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+} 
 
       main();
     </script>
