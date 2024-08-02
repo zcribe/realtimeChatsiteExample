@@ -101,6 +101,25 @@ io.on("connection", (socket) => {
   socket.on("whoami", (cb) => {
     cb(req.user.username);
   });
+
+  socket.on('chat message', (msg) => {
+    const messageWithId = `${req.user.username}: ${msg}`
+    io.emit('chat message', messageWithId);
+  });
+
+  socket.on('typing', () => {
+    socket.broadcast.emit('typing', {
+      username: req.user.username
+    });
+  });
+
+  socket.on('stop typing', () => {
+    socket.broadcast.emit('stop typing', {
+      username: req.user.username
+    });
+  });
+
+  
 });
 
 app.use("/api/v1/user", userRouter);
