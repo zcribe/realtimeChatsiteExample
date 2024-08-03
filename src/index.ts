@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import type { Request, Response } from "express";
 import { createServer } from "node:http";
 import { join } from "node:path";
@@ -6,11 +7,12 @@ import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { Server } from "socket.io";
 import cors from "cors";
-import jwt from "jsonwebtoken";
 
 import config from "./utils/config";
 import loginRouter from "./controllers/login";
 import userRouter from "./controllers/user";
+import messageRouter from "./controllers/message";
+import Message from "./models/message";
 
 declare global {
   namespace Express {
@@ -29,43 +31,14 @@ app.use(cors());
 
 app.use(express.static(join(__dirname, 'public')));
 
-
-app.get(
-  "/self",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    if (req.user) {
-      res.send(req.user);
-    } else {
-      res.status(401).end();
-    }
-  }
-);
-
-
-app.post("/login", (req, res) => {
-  if (req.body.username === "john" && req.body.password === "changeit") {
-    console.log("authentication OK");
-
-    const user = {
-      id: 1,
-      username: "john",
-    };
-
-    const token = jwt.sign(
-      {
-        data: user,
-      },
-      config.SECRET,
-      { expiresIn: 60 * 60 }
-    );
-
-    res.json({ token });
-  } else {
-    console.log("wrong credentials");
-    res.status(401).end();
-  }
-});
+mongoose
+  .connect(config.MONGO_URI)
+  .then(() => {
+    console.log("Connected to the Database");
+  })
+  .catch((error) => {
+    console.log("Error connecting to the Database", error.message);
+  });
 
 const jwtDecodeOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -80,7 +53,6 @@ passport.use(
 
 const io = new Server(server);
 
-let numUsers = 0;
 let usersInRoom: string[] = [];
 
 io.engine.use(
@@ -111,8 +83,10 @@ io.on("connection", (socket) => {
     cb(req.user.username);
   });
 
-  socket.on('chat message', (msg) => {
-    const messageWithId = `${req.user.username}: ${msg}`
+  socket.on('chat message', async (msg) => {
+    const newMessage = new Message({author: req.user.username, message: msg })
+    const savedMessage = await newMessage.save();
+    const messageWithId = `${savedMessage.author}: ${savedMessage.message}`
     io.emit('chat message', messageWithId);
   });
 
@@ -130,14 +104,14 @@ io.on("connection", (socket) => {
 
   socket.on('disconnect', () => {
     if (addedUser) {
-      --numUsers;
       usersInRoom = usersInRoom.filter( i => i !== req.user.username)
 
       // echo globally that this client has left
       socket.broadcast.emit('user left', {
         username: req.user.username,
-        numUsers: numUsers
       });
+
+      io.emit('members', usersInRoom)
     }
   });
 
@@ -146,6 +120,7 @@ io.on("connection", (socket) => {
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/login", loginRouter)
+app.use("/api/v1/message", messageRouter)
 
 server.listen(config.PORT, () => {
   console.log(`application is running at: http://127.0.0.1:${config.PORT}`);
