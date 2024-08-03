@@ -13,6 +13,7 @@ const input = document.getElementById("input");
 const messages = document.getElementById("messages");
 const typing = document.getElementById("typing");
 const members = document.getElementById("members");
+const typers = document.getElementById("typers");
 const signupBar = document.getElementById("signup-bar");
 const modal = document.getElementById("myModal");
 const btn = document.getElementById("myBtn");
@@ -71,16 +72,22 @@ function showHomePanel() {
     messages.scrollTo(0, messages.scrollHeight);
   });
 
+  socket.on("typers", (list) => {
+    typers.innerHTML = "";
+    for (const element of list) {
+      const item = document.createElement("span");
+      item.textContent = element;
+      typers.appendChild(item);
+    }
+  });
+
   socket.on("members", (list) => {
     members.innerHTML = "";
     for (const element of list) {
       const item = document.createElement("li");
-      item.id = element;
       item.textContent = element;
       members.appendChild(item);
     }
-
-    window.scrollTo(0, document.body.scrollHeight);
   });
 }
 
@@ -162,7 +169,25 @@ form.addEventListener("submit", (e) => {
     input.value = "";
   }
 });
+let currentlyTyping = false;
+let lastTypingTime;
 
+input.addEventListener("input", (event) => {
+  if (!currentlyTyping) {
+    socket.emit("typing");
+  }
+
+  lastTypingTime = new Date().getTime();
+
+  setTimeout(() => {
+    const typingTimer = new Date().getTime();
+    const timeDiff = typingTimer - lastTypingTime;
+    if (timeDiff >= 300 && currentlyTyping) {
+      socket.emit("stop typing");
+      currentlyTyping = false;
+    }
+  }, 300);
+});
 
 btn.onclick = () => {
   modal.style.display = "block";

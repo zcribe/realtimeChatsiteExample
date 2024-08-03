@@ -53,7 +53,7 @@ passport.use(
 
 const io = new Server(server);
 
-let usersInRoom: string[] = [];
+
 
 io.engine.use(
   (req: { _query: Record<string, string> }, res: Response, next: Function) => {
@@ -69,6 +69,9 @@ io.engine.use(
 io.on("connection", (socket) => {
   const req = socket.request as Request & { user: Express.User };
   let addedUser = false;
+  let addedTyping = false;
+  let usersInRoom: string[] = [];
+let currentlyTyping: string[] = [];
 
   socket.join(`user:${req.user.id}`);
 
@@ -83,23 +86,24 @@ io.on("connection", (socket) => {
     cb(req.user.username);
   });
 
+  socket.on("typing", (msg) => {
+    if (!addedTyping && !currentlyTyping.includes(req.user.username)){
+      currentlyTyping.push(req.user.username)
+      addedTyping = true
+    }
+    io.emit('typers', currentlyTyping)
+  });
+
+  socket.on("stop typing", (msg) => {
+    currentlyTyping = currentlyTyping.filter( i => i !== req.user.username)
+    io.emit('typers', currentlyTyping)
+  });
+
   socket.on('chat message', async (msg) => {
     const newMessage = new Message({author: req.user.username, message: msg })
     const savedMessage = await newMessage.save();
     const messageWithId = `${savedMessage.author}: ${savedMessage.message}`
     io.emit('chat message', messageWithId);
-  });
-
-  socket.on('typing', () => {
-    socket.broadcast.emit('typing', {
-      username: req.user.username
-    });
-  });
-
-  socket.on('stop typing', () => {
-    socket.broadcast.emit('stop typing', {
-      username: req.user.username
-    });
   });
 
   socket.on('disconnect', () => {
