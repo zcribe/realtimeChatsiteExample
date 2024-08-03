@@ -1,21 +1,3 @@
-
-const modal = document.getElementById("myModal");
-const btn = document.getElementById("myBtn");
-const span = document.getElementsByClassName("close")[0];
-
-btn.onclick = () => {
-  modal.style.display = "block";
-};
-span.onclick = () => {
-  modal.style.display = "none";
-};
-
-window.onclick = (event) => {
-  if (event.target === modal) {
-    modal.style.display = "none";
-  }
-};
-
 const loginPanel = document.getElementById("login-panel");
 const homePanel = document.getElementById("home-panel");
 const loginForm = document.getElementById("login-form");
@@ -32,6 +14,9 @@ const messages = document.getElementById("messages");
 const typing = document.getElementById("typing");
 const members = document.getElementById("members");
 const signupBar = document.getElementById("signup-bar");
+const modal = document.getElementById("myModal");
+const btn = document.getElementById("myBtn");
+const span = document.getElementsByClassName("close")[0];
 
 let socket;
 
@@ -50,7 +35,6 @@ async function main() {
 
   if (res.status === 200) {
     showHomePanel();
-
   } else {
     showLoginPanel();
   }
@@ -89,12 +73,12 @@ function showHomePanel() {
 
   socket.on("members", (list) => {
     members.innerHTML = "";
-    list.forEach((element) => {
+    for (const element of list) {
       const item = document.createElement("li");
       item.id = element;
       item.textContent = element;
       members.appendChild(item);
-    });
+    }
 
     window.scrollTo(0, document.body.scrollHeight);
   });
@@ -103,7 +87,7 @@ function showHomePanel() {
 function showLoginPanel() {
   loginPanel.style.display = "block";
   homePanel.style.display = "none";
-  signupBar.style.display = "none"
+  signupBar.style.display = "none";
 }
 
 loginForm.onsubmit = async (e) => {
@@ -129,11 +113,11 @@ loginForm.onsubmit = async (e) => {
       },
     });
     const chatMessages = await response.json();
-    chatMessages.forEach((message) => {
+    for (const message of chatMessages) {
       const item = document.createElement("li");
       item.textContent = `${message.author}: ${message.message}`;
       messages.appendChild(item);
-    });
+    }
     showHomePanel();
     messages.scrollTo(0, messages.scrollHeight);
   } else {
@@ -178,5 +162,19 @@ form.addEventListener("submit", (e) => {
     input.value = "";
   }
 });
+
+
+btn.onclick = () => {
+  modal.style.display = "block";
+};
+span.onclick = () => {
+  modal.style.display = "none";
+};
+
+window.onclick = (event) => {
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+};
 
 main();
