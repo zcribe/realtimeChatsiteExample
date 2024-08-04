@@ -11,11 +11,11 @@ const loginRouter = Router();
 loginRouter.get(
   "/self",
   passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    if (req.user) {
-      res.send(req.user);
+  (request: Request, response: Response) => {
+    if (request.user) {
+      response.send(request.user);
     } else {
-      res.status(401).end();
+      response.status(401).end();
     }
   }
 );
