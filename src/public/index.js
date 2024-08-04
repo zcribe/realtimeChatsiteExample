@@ -171,9 +171,8 @@ form.addEventListener("submit", (e) => {
 });
 
 input.addEventListener("input", (event) => {
-  if (!currentlyTyping) {
     socket.emit("typing");
-  }
+
 
   setTimeout(() => {
       socket.emit("stop typing");
