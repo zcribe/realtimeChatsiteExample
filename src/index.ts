@@ -87,9 +87,8 @@ let currentlyTyping: string[] = [];
   });
 
   socket.on("typing", (msg) => {
-    if (!addedTyping && !currentlyTyping.includes(req.user.username)){
+    if (!currentlyTyping.includes(req.user.username)){
       currentlyTyping.push(req.user.username)
-      addedTyping = true
     }
     io.emit('typers', currentlyTyping)
   });

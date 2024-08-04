@@ -169,24 +169,15 @@ form.addEventListener("submit", (e) => {
     input.value = "";
   }
 });
-let currentlyTyping = false;
-let lastTypingTime;
 
 input.addEventListener("input", (event) => {
   if (!currentlyTyping) {
     socket.emit("typing");
   }
 
-  lastTypingTime = new Date().getTime();
-
   setTimeout(() => {
-    const typingTimer = new Date().getTime();
-    const timeDiff = typingTimer - lastTypingTime;
-    if (timeDiff >= 300 && currentlyTyping) {
       socket.emit("stop typing");
-      currentlyTyping = false;
-    }
-  }, 300);
+  }, 3000);
 });
 
 btn.onclick = () => {
